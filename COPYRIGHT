@@ -1,0 +1,89 @@
+COPYRIGHT NOTICE
+================
+
+OpenDAO
+Copyright (C) 2025 OpenDAO Contributors
+
+Original Work:
+Superteam Earn Platform
+Copyright (C) 2025 SuperteamDAO Contributors
+Source: https://github.com/SuperteamDAO/earn
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+LICENSE INFORMATION
+===================
+
+This software is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
+
+The GNU Affero General Public License is a free, copyleft license for software
+and other kinds of works, specifically designed to ensure cooperation with
+the community in the case of network server software.
+
+Key Points:
+- You may use, modify, and distribute this software
+- You must provide the source code when distributing
+- You must license derivative works under AGPL-3.0
+- You must provide source code to users of your service
+
+For the complete license text, see the LICENSE file.
+
+CONTRIBUTOR AGREEMENT
+=====================
+
+By contributing to this project, you agree that:
+
+1. Your contributions will be licensed under AGPL-3.0
+2. You have the right to contribute the code you're submitting
+3. You retain copyright to your contributions
+4. You grant the project the right to use your contributions under AGPL-3.0
+
+THIRD-PARTY LICENSES
+====================
+
+This project may include third-party software with different licenses.
+Please refer to the individual package.json files and node_modules for
+specific third-party license information.
+
+ATTRIBUTION
+===========
+
+When using this software, please include appropriate attribution:
+
+"OpenDAO" by OpenDAO Contributors
+Forked from "Superteam Earn Platform" by SuperteamDAO Contributors
+Licensed under GNU Affero General Public License v3.0
+https://github.com/mrtinhnguyen/OpenDAO
+Original: https://github.com/SuperteamDAO/earn
+
+CONTACT
+=======
+
+For questions about licensing or copyright, please contact:
+- GitHub Issues: https://github.com/mrtinhnguyen/OpenDAO/issues
+- Original Project: https://github.com/SuperteamDAO/earn
+- Email: [your-email@example.com]
+
+LEGAL NOTICE
+============
+
+This software is provided "as is" without warranty of any kind, express or
+implied, including but not limited to the warranties of merchantability,
+fitness for a particular purpose and noninfringement. In no event shall the
+authors or copyright holders be liable for any claim, damages or other
+liability, whether in an action of contract, tort or otherwise, arising from,
+out of or in connection with the software or the use or other dealings in the
+software.
+
+For the complete legal terms, see the LICENSE file.
