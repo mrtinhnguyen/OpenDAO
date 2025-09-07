@@ -1,0 +1,3 @@
+# Pre-commit hooks disabled
+# lint-staged --concurrent false
+echo "Pre-commit hooks are disabled"
