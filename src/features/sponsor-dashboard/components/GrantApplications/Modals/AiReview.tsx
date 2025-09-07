@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Check, InfoIcon, Wand2, XCircle } from 'lucide-react';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 

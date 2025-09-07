@@ -39,6 +39,49 @@ export const useUploadImage = (): UseUploadReturn => {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
+  const uploadFileDirect = async (
+    file: File,
+    options: UploadOptions,
+  ): Promise<CloudinaryUploadResult> => {
+    // Fallback: Use the existing /api/image/upload endpoint
+    try {
+      const base64Image = await fileToBase64(file);
+      const base64Content = base64Image.split(',')[1];
+
+      const response = await api.post('/api/image/upload', {
+        imageBase64: base64Content,
+        type: 'image',
+        folder: options.folder,
+      });
+
+      // Convert the response to match CloudinaryUploadResult interface
+      const result: CloudinaryUploadResult = {
+        public_id:
+          response.data.url.split('/').pop()?.split('.')[0] || 'unknown',
+        secure_url: response.data.url,
+        url: response.data.url,
+        format: 'webp',
+        bytes: file.size,
+        created_at: new Date().toISOString(),
+      };
+
+      return result;
+    } catch (error: any) {
+      throw new Error(
+        `Fallback upload failed: ${error.response?.data?.error || error.message}`,
+      );
+    }
+  };
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const compressImage = async (file: File): Promise<File> => {
     return new Promise((resolve, reject) => {
       const canvas = document.createElement('canvas');
@@ -109,6 +152,50 @@ export const useUploadImage = (): UseUploadReturn => {
     setProgress(0);
     setError(null);
 
+    // Check if we have required environment variables
+    const cloudinaryApiKey = process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
+    const cloudinaryCloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+
+    console.log('Cloudinary config check:', {
+      hasApiKey: !!cloudinaryApiKey,
+      hasCloudName: !!cloudinaryCloudName,
+      cloudName: cloudinaryCloudName,
+      allEnvVars: {
+        NEXT_PUBLIC_CLOUDINARY_API_KEY:
+          !!process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
+        NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME:
+          !!process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+      },
+    });
+
+    // Note: We don't need to check these for the fallback method
+    // The fallback method uses /api/image/upload which handles server-side config
+
+    // If we don't have the required environment variables, skip signature method
+    // and go directly to fallback method
+    if (!cloudinaryApiKey || !cloudinaryCloudName) {
+      console.warn(
+        'Cloudinary environment variables not configured, using fallback method',
+      );
+      try {
+        setProgress(25);
+        const compressedFile = await compressImage(file);
+        setProgress(50);
+        const result = await uploadFileDirect(compressedFile, options);
+        setProgress(100);
+        return result;
+      } catch (compressionError) {
+        console.warn(
+          'Image compression failed, using original file:',
+          compressionError,
+        );
+        setProgress(50);
+        const result = await uploadFileDirect(file, options);
+        setProgress(100);
+        return result;
+      }
+    }
+
     try {
       const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
       if (file.size > MAX_FILE_SIZE) {
@@ -132,14 +219,53 @@ export const useUploadImage = (): UseUploadReturn => {
 
       setProgress(50);
 
-      const signatureResponse = await api.post('/api/image/sign', {
-        folder: options.folder,
-        public_id: options.public_id,
-        resource_type: options.resource_type || 'auto',
-        file_size: compressedFile.size,
-      });
+      // Retry mechanism for signature generation
+      const maxRetries = 3;
+      const retryDelay = 1000; // 1 second
+      let signatureData;
 
-      const signatureData = signatureResponse.data;
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          const signatureResponse = await api.post('/api/image/sign', {
+            folder: options.folder,
+            public_id: options.public_id,
+            resource_type: options.resource_type || 'auto',
+            file_size: compressedFile.size,
+          });
+
+          signatureData = signatureResponse.data;
+          break; // Success - break out of retry loop
+        } catch (error: any) {
+          console.error(
+            `Signature generation failed (attempt ${attempt}/${maxRetries}):`,
+            {
+              error: error.message,
+              status: error.response?.status,
+              statusText: error.response?.statusText,
+              data: error.response?.data,
+              config: {
+                url: error.config?.url,
+                method: error.config?.method,
+                data: error.config?.data,
+              },
+            },
+          );
+
+          if (attempt === maxRetries) {
+            // Final attempt failed - try alternative upload method
+            console.warn('Signature API failed, attempting fallback upload...');
+            const fallbackResult = await uploadFileDirect(
+              compressedFile,
+              options,
+            );
+            setProgress(100);
+            return fallbackResult;
+          } else {
+            // Wait before retrying
+            await new Promise((resolve) => setTimeout(resolve, retryDelay));
+          }
+        }
+      }
       setProgress(75);
 
       const formData = new FormData();
@@ -160,6 +286,15 @@ export const useUploadImage = (): UseUploadReturn => {
         formData.append('public_id', signatureData.publicId);
       }
 
+      // Validate signature data before upload
+      if (
+        !signatureData.signature ||
+        !signatureData.timestamp ||
+        !signatureData.cloudName
+      ) {
+        throw new Error('Invalid signature data received from server');
+      }
+
       const uploadResponse = await fetch(
         `https://api.cloudinary.com/v1_1/${signatureData.cloudName}/image/upload`,
         {
@@ -169,8 +304,15 @@ export const useUploadImage = (): UseUploadReturn => {
       );
 
       if (!uploadResponse.ok) {
-        const errorData = await uploadResponse.json();
-        throw new Error(errorData.error?.message || 'Upload failed');
+        let errorMessage = 'Upload failed';
+        try {
+          const errorData = await uploadResponse.json();
+          errorMessage =
+            errorData.error?.message || errorData.message || errorMessage;
+        } catch (parseError) {
+          errorMessage = `HTTP ${uploadResponse.status}: ${uploadResponse.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
 
       const result: CloudinaryUploadResult = await uploadResponse.json();

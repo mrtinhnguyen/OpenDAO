@@ -1,6 +1,7 @@
 import { useSetAtom } from 'jotai';
 import { ArrowRight, Loader2 } from 'lucide-react';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 
 import { ErrorInfo } from '@/components/shared/ErrorInfo';

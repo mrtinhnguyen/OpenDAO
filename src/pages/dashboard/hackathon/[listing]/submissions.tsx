@@ -3,7 +3,8 @@ import { useSetAtom } from 'jotai';
 import type { GetServerSideProps } from 'next';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/router';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 import { useEffect, useMemo, useState } from 'react';
 
 import { LoadingSection } from '@/components/shared/LoadingSection';

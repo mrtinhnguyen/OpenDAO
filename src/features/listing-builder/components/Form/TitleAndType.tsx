@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { Link } from 'lucide-react';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 import { useEffect, useMemo, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import slugify from 'slugify';

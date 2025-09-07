@@ -4,7 +4,8 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { ChevronLeft, Eye, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 import { useWatch } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';

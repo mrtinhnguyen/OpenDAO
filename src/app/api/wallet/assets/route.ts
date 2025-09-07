@@ -7,7 +7,7 @@ import { privy } from '@/lib/privy';
 import { getUserSession } from '@/features/auth/utils/getUserSession';
 import { type TokenAsset } from '@/features/wallet/types/TokenAsset';
 import { fetchUserTokens } from '@/features/wallet/utils/fetchUserTokens';
-import { getConnection } from '@/features/wallet/utils/getConnection';
+import { getConnectionWithFallback } from '@/features/wallet/utils/getConnection';
 
 interface ErrorResponse {
   error: string;
@@ -36,7 +36,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const connection = getConnection('confirmed');
+    const connection = await getConnectionWithFallback('confirmed');
     const assets = await fetchUserTokens(
       connection,
       new PublicKey(walletAddress),

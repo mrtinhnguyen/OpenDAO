@@ -2,7 +2,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { AlertTriangle, Check, CheckCircle2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 import { useEffect, useState } from 'react';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';

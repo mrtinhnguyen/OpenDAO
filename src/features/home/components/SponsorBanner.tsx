@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 
 import MdArrowForward from '@/components/icons/MdArrowForward';
 import { ExternalImage } from '@/components/ui/cloudinary-image';

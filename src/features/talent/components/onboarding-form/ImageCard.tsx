@@ -13,7 +13,6 @@ import { ExternalImage } from '@/components/ui/cloudinary-image';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ASSET_URL } from '@/constants/ASSET_URL';
 import { type Superteam, Superteams } from '@/constants/Superteam';
-import { api } from '@/lib/api';
 import { formatNumberWithSuffix } from '@/utils/formatNumberWithSuffix';
 import { roundToNearestThousand } from '@/utils/number';
 
@@ -48,22 +47,57 @@ export const TalentImageCard = () => {
 
   useEffect(() => {
     const fetchLocation = async () => {
-      try {
-        const response = await api.get('https://ipapi.co/json/');
-        const locationData = response.data;
+      const maxRetries = 3;
+      const retryDelay = 1000; // 1 second
 
-        if (locationData && locationData.country_code) {
-          const superteam = Superteams.find(
-            (ct) =>
-              ct.code.toLowerCase() === locationData.country_code.toLowerCase(),
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          // Use our proxy API instead of direct external API call
+          const response = await fetch('/api/geolocation/ip', {
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const locationData = await response.json();
+
+          if (locationData && locationData.country_code) {
+            const superteam = Superteams.find(
+              (ct) =>
+                ct.code.toLowerCase() ===
+                locationData.country_code.toLowerCase(),
+            );
+
+            if (superteam) {
+              setST(superteam);
+            }
+          }
+
+          // Success - break out of retry loop
+          break;
+        } catch (error) {
+          console.error(
+            `Failed to fetch location (attempt ${attempt}/${maxRetries}):`,
+            error,
           );
 
-          if (superteam) {
-            setST(superteam);
+          if (attempt === maxRetries) {
+            // Final attempt failed - set default or leave undefined
+            console.warn(
+              'All attempts to fetch location failed, using default behavior',
+            );
+            // You can set a default superteam here if needed
+            // setST(defaultSuperteam);
+          } else {
+            // Wait before retrying
+            await new Promise((resolve) => setTimeout(resolve, retryDelay));
           }
         }
-      } catch (error) {
-        console.error('Failed to fetch location:', error);
       }
     };
     fetchLocation();
@@ -94,7 +128,7 @@ export const TalentImageCard = () => {
               </AvatarGroup>
             </div>
             <div className="col-span-2">
-              <p className="text-sm text-slate-500">
+              <div className="text-sm text-slate-500">
                 <span className="capitalize">
                   {people[0]?.name}, {people[1]?.name.split(' ')[0]},{' '}
                   {people[2]?.name.split(' ')[0]}
@@ -106,7 +140,7 @@ export const TalentImageCard = () => {
                   <Skeleton className="h-4 w-12" />
                 )}{' '}
                 others have signed up
-              </p>
+              </div>
             </div>
             <div className="flex items-center gap-1">
               <svg
@@ -117,7 +151,7 @@ export const TalentImageCard = () => {
                 xmlns="http://www.w3.org/2000/svg"
                 className="min-h-7 min-w-7"
               >
-                <g clip-path="url(#clip0_36_12)">
+                <g clipPath="url(#clip0_36_12)">
                   <path
                     d="M17.1111 19.5556L17.1111 2.44445C17.1111 2.1203 16.9823 1.80942 16.7531 1.58021C16.5239 1.351 16.213 1.22223 15.8889 1.22223L6.11108 1.22223C5.78693 1.22223 5.47606 1.351 5.24684 1.58021C5.01763 1.80942 4.88886 2.1203 4.88886 2.44445L4.88886 19.5556C4.88886 19.8797 5.01763 20.1906 5.24684 20.4198C5.47605 20.649 5.78693 20.7778 6.11108 20.7778L15.8889 20.7778C16.213 20.7778 16.5239 20.649 16.7531 20.4198C16.9823 20.1906 17.1111 19.8797 17.1111 19.5556ZM6.11108 2.44445L9.07497 2.44445C9.01873 3.20839 8.68738 3.92602 8.14237 4.46429C7.59737 5.00256 6.87566 5.32494 6.11108 5.37167L6.11108 2.44445ZM12.925 2.44445L15.8889 2.44445L15.8889 5.37167C15.1243 5.32494 14.4026 5.00256 13.8576 4.46429C13.3126 3.92602 12.9812 3.20839 12.925 2.44445ZM6.63053 11C6.63053 8.87945 8.5922 7.15001 11 7.15001C13.4078 7.15001 15.3694 8.87945 15.3694 11C15.3694 13.1206 13.4078 14.85 11 14.85C8.59219 14.85 6.63053 13.1206 6.63053 11ZM6.11108 19.5556L6.11108 16.6528C6.87179 16.6988 7.59035 17.0177 8.13482 17.551C8.67928 18.0842 9.0131 18.796 9.07497 19.5556L6.11108 19.5556ZM12.925 19.5556C12.9868 18.796 13.3207 18.0842 13.8651 17.551C14.4096 17.0177 15.1282 16.6988 15.8889 16.6528L15.8889 19.5556L12.925 19.5556Z"
                     fill="#10B981"

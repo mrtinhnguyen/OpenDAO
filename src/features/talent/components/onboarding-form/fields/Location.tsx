@@ -10,7 +10,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { countries } from '@/constants/country';
-import { api } from '@/lib/api';
 
 import {
   type NewTalentFormData,
@@ -26,8 +25,19 @@ export function LocationField() {
       try {
         const currentLocation = watch('location');
         if (!currentLocation) {
-          const response = await api.get('https://ipapi.co/json/');
-          const locationData = response.data;
+          // Use our proxy API instead of direct external API call
+          const response = await fetch('/api/geolocation/ip', {
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const locationData = await response.json();
 
           if (locationData && locationData.country_code) {
             const country = countries.find(

@@ -35,6 +35,8 @@ export const Login = ({
 
   useLoginWithOAuth({
     onComplete: async ({ user, wasAlreadyAuthenticated }) => {
+      // Add small delay to ensure authentication is fully processed
+      await new Promise(resolve => setTimeout(resolve, 500));
       await handleUserCreation(user.google?.email || '');
       if (redirectTo) {
         router.push(redirectTo);

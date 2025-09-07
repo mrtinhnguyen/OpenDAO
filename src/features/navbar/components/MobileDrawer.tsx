@@ -1,7 +1,8 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/router';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 import React, { useState } from 'react';
 
 import { SupportFormDialog } from '@/components/shared/SupportFormDialog';

@@ -2,7 +2,8 @@ import { useLoginWithOAuth } from '@privy-io/react-auth';
 import { useSetAtom } from 'jotai';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 import React, { type Dispatch, type SetStateAction, useState } from 'react';
 
 import MdOutlineEmail from '@/components/icons/MdOutlineEmail';
@@ -37,6 +38,9 @@ export const SignIn = ({
   const { initOAuth } = useLoginWithOAuth({
     onComplete: async ({ user, wasAlreadyAuthenticated }) => {
       onSuccess?.();
+      
+      // Add small delay to ensure authentication is fully processed
+      await new Promise(resolve => setTimeout(resolve, 500));
       await handleUserCreation(user.google?.email || '');
 
       if (redirectTo) {

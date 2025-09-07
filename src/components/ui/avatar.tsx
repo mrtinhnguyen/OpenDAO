@@ -134,7 +134,10 @@ function AvatarGroup({
 function AvatarGroupList({ children }: { children?: React.ReactNode }) {
   const { limit, setCount } = useAvatarGroupContext();
 
-  setCount?.(React.Children.count(children));
+  // Use useEffect to avoid setState during render
+  React.useEffect(() => {
+    setCount?.(React.Children.count(children));
+  }, [children, setCount]);
 
   return (
     <>{limit ? React.Children.toArray(children).slice(0, limit) : children}</>

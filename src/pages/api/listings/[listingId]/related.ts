@@ -9,7 +9,6 @@ import {
 import logger from '@/lib/logger';
 import { prisma } from '@/prisma';
 import { type BountyType } from '@/prisma/enums';
-import { empty, join, raw, sql } from '@/prisma/internal/prismaNamespace';
 import { safeStringify } from '@/utils/safeStringify';
 
 import { getPrivyToken } from '@/features/auth/utils/getPrivyToken';
@@ -92,7 +91,7 @@ export default async function relatedListings(
   }
 }
 
-async function findRelatedListings(
+export async function findRelatedListings(
   listingId: string,
   skills: (SubSkillsType | ParentSkills)[],
   take: number,
@@ -103,24 +102,23 @@ async function findRelatedListings(
   const skillField = isDevListing ? 'subskills' : 'skills';
   const matchingField = isDevListing ? 'matchingSubskills' : 'matchingSkills';
 
-  let skillQuery;
+  // Build skill query string trực tiếp
+  let skillQueryStr = 'TRUE';
   if (skills.length > 0) {
-    skillQuery = sql`(${join(
-      skills.map(
+    skillQueryStr = skills
+      .map(
         (skill) =>
-          sql`JSON_CONTAINS(JSON_EXTRACT(skills, '$[*].${raw(skillField)}'), JSON_QUOTE(${skill}))`,
-      ),
-      ' OR ',
-    )})`;
-  } else {
-    skillQuery = sql`TRUE`;
+          `JSON_CONTAINS(JSON_EXTRACT(skills, '$[*].${skillField}'), JSON_QUOTE('${skill}'))`,
+      )
+      .join(' OR ');
   }
 
+  // Region filter
   const regionFilter = userRegion
-    ? sql`AND (region = ${userRegion} OR region = 'Global')`
-    : empty;
+    ? `AND (region = '${userRegion}' OR region = 'Global')`
+    : '';
 
-  return await prisma.$queryRaw`
+  const query = `
     SELECT 
       b.id,
       b.rewardAmount,
@@ -153,24 +151,27 @@ async function findRelatedListings(
       ) as sponsor,
       SUM(
         CASE
-          WHEN ${skillQuery} THEN 1
+          WHEN ${skillQueryStr} THEN 1
           ELSE 0
         END
-      ) as ${raw(matchingField)}
+      ) as ${matchingField}
     FROM Bounties b
     LEFT JOIN Sponsors s ON b.sponsorId = s.id
-    WHERE b.id != ${listingId}
+    WHERE b.id != ? 
       AND b.isPrivate = false
       AND b.isPublished = true
       AND b.isActive = true
       AND b.status = 'OPEN'
       AND b.isWinnersAnnounced = false
       AND b.deadline > NOW()
-      AND b.type = ${type}
+      AND b.type = ?
       ${regionFilter}
-      AND ${skillQuery}
+      AND (${skillQueryStr})
     GROUP BY b.id
-    ORDER BY b.deadline ASC, ${raw(matchingField)} DESC
-    LIMIT ${take}
+    ORDER BY b.deadline ASC, ${matchingField} DESC
+    LIMIT ?
   `;
+
+  const results = await prisma.$queryRaw(query, listingId, type, take);
+  return results;
 }

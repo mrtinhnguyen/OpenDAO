@@ -1,6 +1,7 @@
 import { useAtom } from 'jotai';
 import { ExternalLink, Info, Loader2 } from 'lucide-react';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 import React, { useMemo, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 

@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 import React, { useEffect, useRef, useState } from 'react';
 
 import MdArrowForward from '@/components/icons/MdArrowForward';

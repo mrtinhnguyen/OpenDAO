@@ -17,7 +17,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { log } from 'next-axiom';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 

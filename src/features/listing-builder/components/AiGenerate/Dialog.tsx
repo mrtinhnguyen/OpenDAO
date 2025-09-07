@@ -4,7 +4,8 @@ import { useMutation } from '@tanstack/react-query';
 import { useAtom, useSetAtom } from 'jotai';
 import { marked } from 'marked';
 import { AnimatePresence, motion } from 'motion/react';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 import { type ReactNode, useCallback, useEffect, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { toast } from 'sonner';

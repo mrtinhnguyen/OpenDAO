@@ -1,7 +1,8 @@
 import { Loader2 } from 'lucide-react';
 import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 import { useEffect, useRef, useState } from 'react';
 import Countdown from 'react-countdown';
 import { toast } from 'sonner';

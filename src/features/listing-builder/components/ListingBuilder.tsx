@@ -91,9 +91,9 @@ export function ListingBuilder({ route, slug }: ListingBuilderLayout) {
       <Default
         meta={
           <Meta
-            title="Superteam Earn | Work to Earn in Crypto"
-            description="Explore the latest bounties on Superteam Earn, offering opportunities in the crypto space across Design, Development, and Content."
-            canonical="https://earn.superteam.fun"
+            title="OpenDAO | Work to Earn in Crypto"
+            description="Explore the latest bounties on OpenDAO AI, offering opportunities in the crypto space across Design, Development, and Content."
+            canonical="https://opendao.ai"
           />
         }
       >

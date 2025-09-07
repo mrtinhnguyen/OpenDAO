@@ -1,6 +1,7 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useAtom, useSetAtom } from 'jotai';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 import { useEffect, useRef, useState } from 'react';
 
 import {

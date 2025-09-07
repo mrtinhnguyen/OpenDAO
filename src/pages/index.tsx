@@ -61,9 +61,9 @@ export default function HomePage({ potentialSession }: HomePageProps) {
       className="bg-white"
       meta={
         <Meta
-          title="Superteam Earn | Work to Earn in Crypto"
-          description="Explore the latest bounties on Superteam Earn, offering opportunities in the crypto space across Design, Development, and Content."
-          canonical="https://earn.superteam.fun"
+          title="OpenD ao| Work to Earn in Crypto"
+          description="Explore the latest bounties on OpenDAO AI, offering opportunities in the crypto space across Design, Development, and Content."
+          canonical="https://opendao.ai"
         />
       }
     >

@@ -1,7 +1,8 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { Menu } from 'lucide-react';
 import Link from 'next/link';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 import React, { useRef } from 'react';
 
 import { Button } from '@/components/ui/button';

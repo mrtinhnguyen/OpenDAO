@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { LoadingSection } from '@/components/shared/LoadingSection';

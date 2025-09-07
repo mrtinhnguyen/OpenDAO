@@ -1,5 +1,6 @@
 import { ExternalLink } from 'lucide-react';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 
 import { type ParentSkills } from '@/interface/skills';
 import { dayjs } from '@/utils/dayjs';

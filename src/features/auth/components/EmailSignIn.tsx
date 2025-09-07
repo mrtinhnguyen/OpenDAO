@@ -1,7 +1,8 @@
 import { useLoginWithEmail } from '@privy-io/react-auth';
 import { useSetAtom } from 'jotai';
 import { useRouter } from 'next/router';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 import React, { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -35,7 +36,11 @@ export const EmailSignIn = ({ redirectTo, onSuccess }: LoginProps) => {
   const { state, sendCode, loginWithCode } = useLoginWithEmail({
     onComplete: async ({ user, wasAlreadyAuthenticated }) => {
       onSuccess?.();
+      
+      // Add small delay to ensure authentication is fully processed
+      await new Promise(resolve => setTimeout(resolve, 500));
       await handleUserCreation(user.email?.address || '');
+      
       const url = new URL(redirectTo || router.asPath, window.location.origin);
       if (redirectTo) url.searchParams.set('originUrl', router.asPath);
       router.push(url.toString());

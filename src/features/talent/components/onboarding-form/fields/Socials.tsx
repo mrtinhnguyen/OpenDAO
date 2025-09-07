@@ -39,13 +39,20 @@ export function SocialsField() {
   const skills = watch('skills');
   const requiredSocial = useMemo(() => {
     if (hasDevSkills(skills)) {
-      clearErrors('twitter');
       return 'github';
     } else {
-      clearErrors('github');
       return 'twitter';
     }
   }, [skills]);
+
+  // Clear errors in useEffect to avoid setState during render
+  useEffect(() => {
+    if (hasDevSkills(skills)) {
+      clearErrors('twitter');
+    } else {
+      clearErrors('github');
+    }
+  }, [skills, clearErrors]);
 
   useEffect(() => {
     const twitter = getValues('twitter');
@@ -105,7 +112,7 @@ export function SocialsField() {
               </Tooltip>
             </div>
           </span>
-          <p className="text-muted-foreground mt-0 hidden text-xs text-slate-500 sm:text-[0.8rem] lg:block">
+          <p className="mt-0 hidden text-xs text-slate-500 sm:text-[0.8rem] lg:block">
             Fill at least one, but more the merrier
           </p>
         </div>
@@ -172,7 +179,7 @@ export function SocialsField() {
                 variant="ghost"
                 size="icon"
                 onClick={() => handleToggleSocial(social, false)}
-                className="text-muted-foreground hover:text-destructive absolute top-0 right-0 flex"
+                className="hover:text-destructive absolute top-0 right-0 flex text-slate-500"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>

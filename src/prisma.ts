@@ -1,16 +1,14 @@
-import { PrismaClient } from '@/prisma/client';
+import { PrismaClient } from '@prisma/client';
 
-const omitConfig = {
-  user: {
-    kycCountry: true,
-    kycAddress: true,
-    kycDOB: true,
-    kycIDNumber: true,
-    kycIDType: true,
-    kycName: true,
-  },
-};
-const prismaClient = new PrismaClient({ omit: omitConfig });
-declare const globalThis: { prismaGlobal: typeof prismaClient } & typeof global;
-export const prisma = globalThis.prismaGlobal ?? prismaClient;
+declare global {
+  let prismaGlobal: PrismaClient | undefined;
+}
+
+// Tạo PrismaClient singleton, tránh tạo nhiều instance trong dev mode
+export const prisma =
+  globalThis.prismaGlobal ??
+  new PrismaClient({
+    log: ['query', 'error'], // giúp debug
+  });
+
 if (process.env.NODE_ENV !== 'production') globalThis.prismaGlobal = prisma;

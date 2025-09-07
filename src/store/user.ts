@@ -4,13 +4,14 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import posthog from 'posthog-js';
 import { useEffect } from 'react';
 import { getCookie, removeCookie, setCookie } from 'typescript-cookie';
 
 import { useForcedProfileRedirect } from '@/hooks/use-forced-profile-redirect';
 import { type User } from '@/interface/user';
 import { api } from '@/lib/api';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 
 export const USER_ID_COOKIE_NAME = 'user-id-hint';
 const COOKIE_OPTIONS = {
@@ -53,7 +54,17 @@ export const useUser = () => {
               console.warn('User request returned 401, logging out.');
               removeCookie(USER_ID_COOKIE_NAME, { path: '/' });
               await logout();
-              if (posthog._isIdentified()) posthog.reset();
+              if (
+                typeof posthog !== 'undefined' &&
+                posthog._isIdentified &&
+                posthog._isIdentified()
+              ) {
+                try {
+                  posthog.reset();
+                } catch (error) {
+                  console.warn('PostHog reset failed:', error);
+                }
+              }
             }
           }
         }
@@ -76,18 +87,35 @@ export const useUser = () => {
     if (isLoading || !ready) return;
 
     if (!user) {
-      if (posthog._isIdentified()) posthog.reset();
+      if (
+        typeof posthog !== 'undefined' &&
+        posthog._isIdentified &&
+        posthog._isIdentified()
+      ) {
+        try {
+          posthog.reset();
+        } catch (error) {
+          console.warn('PostHog reset failed:', error);
+        }
+      }
       return;
     }
 
     const profileComplete = user.isTalentFilled || !!user.currentSponsorId;
 
-    if (profileComplete) {
-      const alreadyIdentified = posthog._isIdentified();
-      const sameUser = posthog.get_distinct_id() === String(user.id);
+    if (profileComplete && typeof posthog !== 'undefined') {
+      try {
+        const alreadyIdentified =
+          posthog._isIdentified && posthog._isIdentified();
+        const sameUser =
+          posthog.get_distinct_id &&
+          posthog.get_distinct_id() === String(user.id);
 
-      if (!alreadyIdentified || !sameUser) {
-        posthog.identify(user.id, { email: user.email });
+        if (!alreadyIdentified || !sameUser) {
+          posthog.identify && posthog.identify(user.id, { email: user.email });
+        }
+      } catch (error) {
+        console.warn('PostHog identify failed:', error);
       }
     }
   }, [user, isLoading, ready]);
@@ -130,7 +158,13 @@ export const useLogout = () => {
     await logout();
 
     queryClient.clear();
-    if (posthog._isIdentified()) posthog.reset();
+    if (posthog._isIdentified && posthog._isIdentified()) {
+      try {
+        posthog.reset();
+      } catch (error) {
+        console.warn('PostHog reset failed:', error);
+      }
+    }
 
     window.location.reload();
   };

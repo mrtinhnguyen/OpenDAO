@@ -7,7 +7,7 @@ export default function Custom404() {
     <Default
       meta={
         <Meta
-          title="Not Found | Superteam Earn"
+          title="Not Found | OpenDAO AI"
           description="404 - Page Not Found"
         />
       }

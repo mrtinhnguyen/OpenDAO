@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { getImageProps } from 'next/image';
 import Link from 'next/link';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 import React from 'react';
 
 import { cn } from '@/utils/cn';

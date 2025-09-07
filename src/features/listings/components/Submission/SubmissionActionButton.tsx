@@ -3,7 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { ArrowRight, Gift, Loader2, Pencil, X } from 'lucide-react';
 import { useRouter } from 'next/router';
-import posthog from 'posthog-js';
+// PostHog temporarily disabled - using mock
+import posthog from '@/lib/posthog-mock';
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 
